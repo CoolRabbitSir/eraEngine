@@ -9,7 +9,7 @@
      * @param imageData : object
     */
 
-    var channelColor = function( imageData, color, sign )
+    Private : var channelColor = function( imageData, color, sign )
     {
         var filterData = imageData.data;
         var dataLength = filterData.length;
@@ -30,7 +30,7 @@
      * @param opaque    : boolean
     */
 
-    var convolute = function( imageData, weights, opaque )
+    Private : var convolute = function( imageData, weights, opaque )
     {
         var filterData = imageData.data;
         var sourceData = Array.prototype.slice.call( filterData, 0 );
@@ -86,7 +86,7 @@
      * @return imageData : object
     */
 
-    var desaturate = function( imageData )
+    Public : var desaturate = function( imageData )
     {
         var filterData = imageData.data;
         var dataLength = filterData.length;
@@ -122,7 +122,7 @@
      * @return imageData : object
     */
 
-    var channel = function( imageData, r, g, b, a )
+    Public : var channel = function( imageData, r, g, b, a )
     {
         era.isClass( r ) === 'number' && ( channelColor( imageData, r, 0 ) );
         era.isClass( g ) === 'number' && ( channelColor( imageData, g, 1 ) );
@@ -141,7 +141,7 @@
      * @return imageData : object
     */
 
-    var contrast = function( imageData, amount )
+    Public : var contrast = function( imageData, amount )
     {
         var filterData = imageData.data;
         var dataLength = filterData.length;
@@ -171,7 +171,7 @@
      * @return imageData : object
     */
 
-    var inverting = function( imageData )
+    Public : var inverting = function( imageData )
     {
         var filterData = imageData.data;
         var dataLength = filterData.length;
@@ -198,7 +198,7 @@
      * @return imageData : object
     */
 
-    var threshold = function( imageData, amount, background, foreground )
+    Public : var threshold = function( imageData, amount, background, foreground )
     {
         var filterData = imageData.data;
         var dataLength = filterData.length;
@@ -234,7 +234,7 @@
      * @return imageData : object
     */
 
-    var sharpen = function( imageData, amount )
+    Public : var sharpen = function( imageData, amount )
     {
         var mete_1 = -( amount - 1 ) / 4;
         var mete_2 = 0;
@@ -259,7 +259,7 @@
      * @return imageData : object
     */
 
-    var relief = function( imageData, amount )
+    Public : var relief = function( imageData, amount )
     {
         var mete_1 = 1;
         var mete_2 = -1;
@@ -287,7 +287,7 @@
      * @website http://www.quasimondo.com/StackBlurForCanvas/StackBlurDemo.html
     */
 
-    var gaussianBlur = function( imageData, radius )
+    Public : var gaussianBlur = function( imageData, radius )
     {
         var filterData = imageData.data;
 

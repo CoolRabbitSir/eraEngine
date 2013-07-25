@@ -8,7 +8,7 @@
      * @date 2013/06/16
     */
 
-    window.requestAnimationFrame = ( function()
+    Private : var requestAnimationFrame = ( function()
     {
         return window.webkitRequestAnimationFrame ||
                window.mozRequestAnimationFrame    ||
@@ -16,7 +16,8 @@
                window.msRequestAnimationFrame     ||
                function( callback ) { window.setTimeout( callback, 1000 / 60 ) };
     } )();
-    window.cancelAnimationFrame = ( function()
+    
+    Private : var cancelAnimationFrame = ( function()
     {
         return window.webkitCancelAnimationFrame ||
                window.mozCancelAnimationFrame    ||
@@ -31,35 +32,12 @@
      * @date 2013/06/16
     */
 
-    var rendererAction = function( rendererObject, these )
+    Private : var rendererAction = function( rendererObject, these )
     {
         if( !rendererObject ) return false;
 
-        // 检查动作延迟属性 //
-        if( rendererObject.delay > 0 )
-        {
-            if( rendererObject.delayed == undefined || rendererObject.delayed <= 0 )
-            {
-                rendererObject.delayed = Date.now();
-            };
-
-            if( rendererObject.delay <= ( Date.now() - rendererObject.delayed ) )
-            {
-                // 检查 these 不为空时，即动作对象挂载在模型对象时将动作的 this 指针指向模型对象，并且将动作对象作为回调参数返回 //
-                if( these )
-                {
-                    rendererObject.action.call( these, rendererObject );
-                }
-                else
-                {
-                    rendererObject.action();
-                };
-
-                rendererObject.delayed = 0;
-            };
-        }
-        // 动作延迟属性为 0 时直接执行 //
-        else if( rendererObject.delay == 0 )
+        // 检查动作跳延迟属性 //
+        if( rendererObject.skipDelay )
         {
             if( these )
             {
@@ -68,6 +46,46 @@
             else
             {
                 rendererObject.action();
+            };
+
+            rendererObject.skipDelay = false;
+        }
+        else
+        {
+            // 检查动作延迟属性 //
+            if( rendererObject.delay > 0 )
+            {
+                if( rendererObject.delayed <= 0 )
+                {
+                    rendererObject.delayed = Date.now();
+                };
+
+                if( rendererObject.delay <= ( Date.now() - rendererObject.delayed ) )
+                {
+                    // 检查 these 不为空时，即动作对象挂载在模型对象时将动作的 this 指针指向模型对象，并且将动作对象作为回调参数返回 //
+                    if( these )
+                    {
+                        rendererObject.action.call( these, rendererObject );
+                    }
+                    else
+                    {
+                        rendererObject.action();
+                    };
+
+                    rendererObject.delayed = 0;
+                };
+            }
+            // 动作延迟属性为 0 时直接执行 //
+            else if( rendererObject.delay == 0 )
+            {
+                if( these )
+                {
+                    rendererObject.action.call( these, rendererObject );
+                }
+                else
+                {
+                    rendererObject.action();
+                };
             };
         };
     };
@@ -78,7 +96,7 @@
      * @date 2013/06/16
     */
 
-    var rendererModle = function( stage, rendererObject )
+    Private : var rendererModle = function( stage, rendererObject )
     {
         // 建立矩形路径 //
         var pathRectangle = function( x, y, w, h )
@@ -173,14 +191,32 @@
                     {
                         stage.globalAlpha = rendererObject.texture.alpha;
 
-                        stage.drawImage
-                        (
-                            rendererObject.texture.image,
-                            rendererObject.x,
-                            rendererObject.y,
-                            rendererObject.width,
-                            rendererObject.height
-                        );
+                        if( rendererObject.texture.locaWidth || rendererObject.texture.locaHeight )
+                        {
+                            stage.drawImage
+                            (
+                                rendererObject.texture.image,
+                                rendererObject.texture.locaX,
+                                rendererObject.texture.locaY,
+                                rendererObject.texture.locaWidth,
+                                rendererObject.texture.locaHeight,
+                                rendererObject.x,
+                                rendererObject.y,
+                                rendererObject.width,
+                                rendererObject.height
+                            );
+                        }
+                        else
+                        {
+                            stage.drawImage
+                            (
+                                rendererObject.texture.image,
+                                rendererObject.x,
+                                rendererObject.y,
+                                rendererObject.width,
+                                rendererObject.height
+                            );
+                        };
                     };
                 break;
                 case 'fill' :
@@ -232,7 +268,7 @@
         FRAMES_DISPLAY_CANVAS   : null,
 
         // 渲染核心指针 //
-        animationFrame : undefined,
+        animationFrame : null,
 
         /*
          * 添加模型数据到渲染队列
@@ -313,7 +349,7 @@
                         break;
                         // 当对象状态为 2 时跳过渲染 //
                         case 2 :
-                            return null;
+                            continue;
                         break;
                         // 当对象状态为 3 时执行一次性渲染 //
                         case 3 :
@@ -335,7 +371,7 @@
 
             // 处理模型渲染 //
             // 根据模型深度值重新排列渲染队列元素顺序 //
-            queueModel.sort( function( min, max ) { return min.z - max.z } );
+            queueModel.sort( function( min, max ) { return min.depth - max.depth } );
 
             // 渲染队列内容 //
             var modelHandle = function()
@@ -355,17 +391,35 @@
                         break;
                         // 当对象状态为 1 时正常渲染 //
                         case 1 :
-                            rendererModle( this.stage, rendererObject );
-                            rendererAction( rendererObject.action, rendererObject );
+                            // 处理渲染优先级 //
+                            if( Priority )
+                            {
+                                rendererModle( this.stage, rendererObject );
+                                rendererAction( rendererObject.action, rendererObject );
+                            }
+                            else
+                            {
+                                rendererAction( rendererObject.action, rendererObject );
+                                rendererModle( this.stage, rendererObject );
+                            };
                         break;
                         // 当对象状态为 2 时跳过渲染 //
                         case 2 :
-                            return null;
+                            continue;
                         break;
                         // 当对象状态为 3 时执行一次性渲染 //
                         case 3 :
-                            rendererModle( this.stage, rendererObject );
-                            rendererAction( rendererObject.action, rendererObject );
+                            // 处理渲染优先级 //
+                            if( Priority )
+                            {
+                                rendererModle( this.stage, rendererObject );
+                                rendererAction( rendererObject.action, rendererObject );
+                            }
+                            else
+                            {
+                                rendererAction( rendererObject.action, rendererObject );
+                                rendererModle( this.stage, rendererObject );
+                            };
                             queueRecover.push( rendererObject );
                             queueModel.splice( modelSign, 1 );
                             modelSign -= 1;

@@ -18,35 +18,33 @@
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * eraEngine JavaScript 纪元游戏引擎
+ * eraEngine JavaScript 纪元引擎
  *
  * CoolRabbit( 63986605@qq.com / eraEngine.ausiu.com ) 版权所有
  *
- * 被授权人有权利使用、复制、修改、合并、出版发布、散布、但不包含任何形式的商业用途、贩售软件及软件的副本。
+ * 被授权人有权利使用、复制、修改、合并、出版发布、散布、再授权及贩售软件及软件的副本。
  * 被授权人可根据程序的需要修改许可协议为适当的内容。
  *
  * 在软件和软件的所有副本中都必须包含版权声明和许可声明。
  *
- * 此许可协议并非属 Copyleft 的自由软件许可协议条款，允许在自由及开放源代码软件或非自由软件（Proprietary software）所使用。
- * MIT的内容可依照程序著作权者的需求更改内容。此亦为MIT与BSD（The BSD license, 3-clause BSD license）本质上不同处。
- * MIT许可协议可与其他许可协议并存。另外，MIT条款也是自由软件基金会（FSF）所认可的自由软件许可协议条款，与GPL兼容。
+ * 此许可协议并非属 Copyleft 的自由软件许可协议条款，允许在自由及开放源代码软件或非自由软件 ( Proprietary software ) 所使用。
+ * MIT 的内容可依照程序著作权者的需求更改内容。此亦为 MIT 与 BSD( The BSD license, 3-clause BSD license ) 本质上不同处。
+ * MIT 许可协议可与其他许可协议并存。另外，MIT 条款也是自由软件基金会 ( FSF ) 所认可的自由软件许可协议条款，与 GPL 兼容。
  *
  * 引擎子类文件夹包括：
  *
- * eraEngine.model.js : 模型创建管理器
- * eraEngine.texture.js 贴图创建管理器
- * eraEngine.action.js 动作创建管理器
+ * eraEngine.model.js :  模型创建管理器
+ * eraEngine.texture.js  贴图创建管理器
+ * eraEngine.action.js   动作创建管理器
  * eraEngine.renderer.js 中央渲染管理器
- * eraEngine.tools.js 工具集
+ * eraEngine.tools.js    工具集
+ * eraEngine.event.js    事件管理器
 
  * eraEngine.plugins.filter.js 滤镜创建插件
  * eraEngine.plugins.shadow.js 阴影创建插件
+ * eraEngine.plugins.loader.js 加载管理插件
 
- * 待定 eraEngine.keyboard.js : 键盘事件管理器
- * 待定 eraEngine.mouse.js : 鼠标事件管理器
- * 待定 eraEngine.touch.js : 触屏事件管理器
- * 待定 eraEngine.mobile.js : 移动设备管理器
- * 待定 eraEngine.resources.js : 资源加载管理器
+ * 待定 eraEngine.mobile.js :     移动设备管理器
  * 待定 eraEngine.arithmetic.js : 算法集
  */
 
@@ -64,7 +62,7 @@
      * @return isClass : string
     */
 
-    var isClass = function( value )
+    Public : var isClass = function( value )
     {
         var type = 
         {
@@ -90,7 +88,7 @@
      * @param scriptName : string
     */
 
-    var include = function( scriptName )
+    Public : var include = function( scriptName )
     {
         if( !scriptName || isClass( scriptName ) !== 'string' )
         {
@@ -100,8 +98,8 @@
         {
             var scriptGroup  = document.scripts;
             var scriptNumber = scriptGroup.length;
-            var scriptFind   = undefined;
-            var scriptPath   = undefined;
+            var scriptFind   = null;
+            var scriptPath   = null;
 
             // 从加载的脚本中找到 eraEngine.js //
             for( ; scriptNumber > 0; scriptNumber -- )
@@ -128,6 +126,18 @@
     };
 
     /*
+     * 定义属性
+     * @author CoolRabbit
+     * @date 2013/06/13
+     * @param scriptName : string
+    */
+
+    Public : var defineProperty = function( object, name, method )
+    {
+        Object.defineProperty( object, name, method );
+    };
+
+    /*
      * 初始化 eraEngine
      * @author CoolRabbit
      * @date 2013/06/13
@@ -135,7 +145,7 @@
      * @return object : eraEngine object
     */
 
-    var eraEngine = function( node )
+    Interface : var eraEngine = function( node )
     {
         return new eraEngine.model.initial( node );
     };
@@ -150,7 +160,7 @@
     {
         // 初始化 eraEngine 信息 //
         tip       : true,
-        eraEngine : 1215,
+        eraEngine : 1033,
 
         // 初始化 eraEngine 公共属性 //
         canvas         : null,
@@ -196,6 +206,16 @@
                     this.canvasPosition = this.canvas.style.position;
                     this.canvasWidth    = this.canvas.width;
                     this.canvasHeight   = this.canvas.height;
+
+                    defineProperty( this, 'getCanvasWidth', { get : function()
+                    {
+                        return this.canvas.width;
+                    } } );
+
+                    defineProperty( this, 'getCanvasHeight', { get : function()
+                    {
+                        return this.canvas.height;
+                    } } );
                 }
                 else
                 {
@@ -213,13 +233,11 @@
             // 初始化缓存画布 //
             this.buffCanvas = document.createElement( 'canvas' );
             this.buffStage  = this.buffCanvas.getContext( '2d' );
-
-            return this;
         }
     };
 
     /*
-     * eraEngine 继承
+     * eraEngine 扩展
      * @author CoolRabbit
      * @date 2013/06/13
     */
@@ -227,7 +245,7 @@
     eraEngine.extend = eraEngine.model.extend = function()
     {
         var methodNumber = 0;
-        var methodName   = undefined;
+        var methodName   = null;
 
         for( ; methodNumber < arguments.length; methodNumber ++ )
         {
@@ -244,9 +262,10 @@
     // 公开 eraEngine 全局对象 //
     window.eraEngine = window.era = eraEngine;
 
-    // 链接 eraEngine 私有方法 //
+    // 链接 eraEngine 公共方法 //
     eraEngine.isClass = isClass;
     eraEngine.include = include;
+    eraEngine.defineProperty = defineProperty;
 
     // 包含子类文件 //
     include( 'eraEngine.model.js' );
@@ -254,8 +273,10 @@
     include( 'eraEngine.action.js' );
     include( 'eraEngine.renderer.js' );
     include( 'eraEngine.tools.js' );
+    include( 'eraEngine.event.js' );
 
     include( 'eraEngine.plugins.filter.js' );
     include( 'eraEngine.plugins.shadow.js' );
+    include( 'eraEngine.plugins.loader.js' );
 
  } )( window );

@@ -8,8 +8,8 @@
      * @date 2013/06/16
     */
 
-    var actionID = 0;
-    var Action = function( value )
+    Private : var actionID = 0;
+    Private : var Action = function( value )
     {
         this.set( value );
     };
@@ -18,6 +18,8 @@
     {
         status : 1,
         delay : 0,
+        delayed : 0,
+        skipDelay : false,
         action : function(){},
         
         set : function( value )
@@ -33,6 +35,18 @@
                     this[ name ] = value[ name ];
                 };
             };
+        },
+        remove : function()
+        {
+            this.status = 0;
+        },
+        hide : function()
+        {
+            this.status = 2;
+        },
+        show : function()
+        {
+            this.status = 1;
         }
     };
 

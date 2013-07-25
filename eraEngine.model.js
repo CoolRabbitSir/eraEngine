@@ -8,8 +8,8 @@
      * @date 2013/06/16
     */
 
-    var modelID = 0;
-    var model =
+    Private : var modelID = 0;
+    Private : var model =
     {
         status  : 1,
         depth   : 0,
@@ -17,6 +17,7 @@
         x       : 0,
         y       : 0,
         texture : null,
+        action : null,
 
         set : function( value )
         {
@@ -31,11 +32,23 @@
                     this[ name ] = value[ name ];
                 };
             };
+        },
+        remove : function()
+        {
+            this.status = 0;
+        },
+        hide : function()
+        {
+            this.status = 2;
+        },
+        show : function()
+        {
+            this.status = 1;
         }
     };
 
     // 矩形模型数据 //
-    var Rectangle = function( value )
+    Private : var Rectangle = function( value )
     {
         this.width  = 16;
         this.height = 16;
@@ -47,7 +60,7 @@
     Rectangle.prototype = model;
 
     // 圆型模型数据 //
-    var Circle = function( value )
+    Private : var Circle = function( value )
     {
         this.radius = 16;
 
@@ -58,7 +71,7 @@
     Circle.prototype = model;
 
     // 等边模型数据 //
-    var Equilateral = function( value )
+    Private : var Equilateral = function( value )
     {
         this.sideNumber = 3;
         this.sideWidth = 16;
@@ -70,7 +83,7 @@
     Equilateral.prototype = model;
 
     // 多边形模型数据 //
-    var Polygon = function( value )
+    Private : var Polygon = function( value )
     {
         this.points = [];
 
@@ -81,7 +94,7 @@
     Polygon.prototype = model;
 
     // 线段模型数据 //
-    var Line = function( value )
+    Private : var Line = function( value )
     {
         this.points = [];
 

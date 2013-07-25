@@ -8,8 +8,8 @@
      * @date 2013/06/16
     */
 
-    var textureID = 0;
-    var Texture = function( value )
+    Private : var textureID = 0;
+    Private : var Texture = function( value )
     {
         this.set( value );
     };
@@ -17,6 +17,11 @@
     Texture.prototype =
     {
         image : null,
+
+        locaX : 0,
+        locaY : 0,
+        locaWidth : 0,
+        locaHeight : 0,
 
         fillStyle : '#000',
         globalCompositeOperation : 'source-over',

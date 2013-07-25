@@ -3,11 +3,11 @@
 ( function( window )
 {
     // 创建缓冲画布 //
-    var buffCanvas = document.createElement( 'canvas' );
-    var buffStage  = buffCanvas.getContext( '2d' );
+    Private : var buffCanvas = document.createElement( 'canvas' );
+    Private : var buffStage  = buffCanvas.getContext( '2d' );
 
     // 获取轮廓 //
-    var contour = function( imageData )
+    Private : var contour = function( imageData )
     {
         var data   = imageData.data;
         var length = data.length;
@@ -55,7 +55,7 @@
     };
 
     // 倾斜轮廓 //
-    var tilt = function( point, angleNS, angleEW )
+    Private : var tilt = function( point, angleNS, angleEW )
     {
         var ponitLength = point.length;
         var ponitSign = 0;
@@ -93,7 +93,7 @@
      * @return imageData  : object
     */
 
-    var scenery = function( stageWidth, stageHeight, image, angleNS, angleEW, color )
+    Public : var scenery = function( stageWidth, stageHeight, image, angleNS, angleEW, color )
     {
         // 绘制图像到缓冲画布 //
         var imageWidth = image.width;
